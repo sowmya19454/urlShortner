@@ -68,7 +68,8 @@ app.post('/map', async (req, res) => {
     return res.status(400).send('Both URL and alias are required.');
   }
   const newUrl = new Mappings({
-    url : url
+    alias : alias,
+    url : url,
   })
   const savedUrl = await newUrl.save();
   res.send('Mapping saved successfully.');
@@ -83,8 +84,7 @@ app.get('/mappings', async (req, res) => {
   }
 });
 
-
-app.get('/r/:alias', async (req, res) => {
+app.get('/:alias', async (req, res) => {
   const { alias } = req.params;
   try {
     const mapping = await Mappings.findOne({ alias: alias }).exec();
