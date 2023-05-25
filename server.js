@@ -1,11 +1,23 @@
 const express = require('express');
+const mongoose = require("mongoose");
+require('dotenv').config();
+
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
-const mappings = {}; 
+mongoose.set("strictQuery", false);
+mongoose.connect(
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.xrmgzhl.mongodb.net/?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+
+const Mappings = require("./models/Schema"); 
 
 const endpoints = [
   { path: '/', description: 'Home page', response: 'Rendered HTML' },
@@ -50,29 +62,43 @@ app.get('/r/github', (req, res) => {
   res.redirect('https://github.com/');
 })
 
-app.post('/map', (req, res) => {
+app.post('/map', async (req, res) => {
   const { url, alias } = req.body;
   if (!url || !alias) {
     return res.status(400).send('Both URL and alias are required.');
   }
-  mappings[alias] = url;
+  const newUrl = new Mappings({
+    url : url
+  })
+  const savedUrl = await newUrl.save();
   res.send('Mapping saved successfully.');
 });
 
-app.get('/mappings', (req, res) => {
-  res.json(mappings);
+app.get('/mappings', async (req, res) => {
+  try {
+    const mappings = await Mappings.find().exec();
+    res.json(mappings);
+  } catch (error) {
+    res.status(500).send('Internal Server Error.');
+  }
 });
 
-app.get('/r/:alias', (req, res) => {
+
+app.get('/r/:alias', async (req, res) => {
   const { alias } = req.params;
-  const url = mappings[alias];
-  if (url) {
-    res.redirect(url);
-  } else {
-    res.status(404).send('Mapping not found.');
+  try {
+    const mapping = await Mappings.findOne({ alias: alias }).exec();
+    if (mapping) {
+      res.redirect(mapping.url);
+    } else {
+      res.status(404).send('Mapping not found.');
+    }
+  } catch (error) {
+    res.status(500).send('Internal Server Error.');
   }
 });
 
 app.listen(5005, () => {
   console.log('Server is running at port 5005');
 });
+
