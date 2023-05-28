@@ -1,21 +1,27 @@
 const express = require('express');
 const mongoose = require("mongoose");
 require('dotenv').config();
-
+const urlRoute = require("./routes/url");
+const URL = require("./models/Schema");
+const createHttpError = require('http-errors')
 const app = express();
-
+const bodyParser=require("body-parser");
+app.use(bodyParser.json())
+app.use("/url", urlRoute);
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
+const shortid = require("shortid");
 
 mongoose.set("strictQuery", false);
 mongoose.connect(
-  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.xrmgzhl.mongodb.net/?retryWrites=true&w=majority`,
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.vl6mcam.mongodb.net/?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  }
+  } 
 );
+
 
 const Mappings = require("./models/Schema"); 
 
@@ -35,6 +41,41 @@ const endpoints = [
 app.get('/', (req, res) => {
   res.render('index');
 })
+
+app.post('/', (req, res) => {
+  res.render('index');
+})
+
+
+app.get('/shorten', (req, res) => {
+  res.render('index1');
+})
+
+app.post('/shorten', async (req, res, next) => {
+  try {
+    const { url } = req.body
+    if (!url) {
+      throw createHttpError.BadRequest('Provide a valid url')
+    }
+    const urlExists = await URL.findOne({ url })
+    if (urlExists) {
+      res.render('index', {
+        // short_url: `${req.hostname}/${urlExists.shortId}`,
+        short_url: `${req.hostname}/${urlExists.alias}`,
+      })
+      return
+    }
+    const shortUrl = new URL({ url: url, alias:shortid() })
+    const result = await shortUrl.save()
+    res.render('index', {
+      // short_url: `${req.hostname}/${urlExists.shortId}`,
+      short_url: `${req.hostname}/${result.alias}`,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 
 app.get('/i', (req, res) => {
   res.json(endpoints);
@@ -85,9 +126,15 @@ app.get('/mappings', async (req, res) => {
 });
 
 app.get('/:alias', async (req, res) => {
-  const { alias } = req.params;
+  const alias  = req.params.alias;
   try {
-    const mapping = await Mappings.findOne({ alias: alias }).exec();
+    const mapping = await URL.findOneAndUpdate({ alias },{
+      $push: {
+        visitHistory: {
+          timestamp: Date.now(),
+        },
+      },
+    });
     if (mapping) {
       res.redirect(mapping.url);
     } else {
@@ -98,7 +145,10 @@ app.get('/:alias', async (req, res) => {
   }
 });
 
+
+
 app.listen(5005, () => {
   console.log('Server is running at port 5005');
 });
+
 
