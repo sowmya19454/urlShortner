@@ -17,13 +17,12 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 mongoose.set("strictQuery", false);
 mongoose.connect(
-  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.vl6mcam.mongodb.net/?retryWrites=true&w=majority`,
+  `${process.env.MONGODB_URI}`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   } 
 );
-
 
 const Mappings = require("./models/Schema"); 
 
@@ -48,13 +47,9 @@ app.post('/', (req, res) => {
   res.render('index');
 })
 
-
 app.get('/shorten', (req, res) => {
   res.render('index1');
 })
-
-
-
 
 app.get('/i', (req, res) => {
   res.json(endpoints);
@@ -118,13 +113,10 @@ app.get('/:alias', async (req, res) => {
   }
 });
 
-
 app.post('/shorten', async (req, res, next) => {
-  
     const { url } = req.body
     if (!url) {
      throw createHttpError.BadRequest('Provide a valid url')
-    
     }
     const urlExists = await URL.findOne({ url })
     if (urlExists) {
@@ -140,14 +132,10 @@ app.post('/shorten', async (req, res, next) => {
       short_url: `${req.headers.host}/${result.alias}`,
       //short_url: `https://url-shortener-1zjp.onrender.com/${result.alias}`,
     })
-   
 })
 
-
-
-
-app.listen(5005, () => {
-  console.log('Server is running at port 5005');
+app.listen(5002, () => {
+  console.log('Server is running at port 5002');
 });
 
 
