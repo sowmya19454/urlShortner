@@ -12,6 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 const shortid = require("shortid");
+const path = require('path')
+app.use(express.static(path.join(__dirname, 'public')))
 
 mongoose.set("strictQuery", false);
 mongoose.connect(
@@ -127,16 +129,16 @@ app.post('/shorten', async (req, res, next) => {
     const urlExists = await URL.findOne({ url })
     if (urlExists) {
       res.render('index1', {
-        // short_url: `${req.hostname}/${urlExists.shortId}`,
-        short_url: `https://url-shortener-1zjp.onrender.com/${urlExists.alias}`,
+         short_url: `${req.headers.host}/${urlExists.alias}`,
+        //short_url: `https://url-shortener-1zjp.onrender.com/${urlExists.alias}`,
       })
       return
     }
     const shortUrl = new URL({ url: url, alias:shortid() })
     const result = await shortUrl.save()
     res.render('index1', {
-      // short_url: `${req.hostname}/${urlExists.shortId}`,
-      short_url: `https://url-shortener-1zjp.onrender.com/${result.alias}`,
+      short_url: `${req.headers.host}/${result.alias}`,
+      //short_url: `https://url-shortener-1zjp.onrender.com/${result.alias}`,
     })
    
 })

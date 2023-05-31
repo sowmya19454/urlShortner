@@ -5,6 +5,8 @@ function App() {
   const [url, setUrl] = useState('');
   const [shortenedUrl, setShortenedUrl] = useState('');
   const [isValidUrl, setIsValidUrl] = useState(true);
+  const API_URL = "https://url-shortener-1zjp.onrender.com" 
+
 
   useEffect(() => {
     // usin regex for validation
@@ -24,7 +26,7 @@ function App() {
       return;
     }
     try {
-      const response = await fetch('https://url-shortener-1zjp.onrender.com/shorten', {
+      const response = await fetch(API_URL + '/shorten', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,10 +34,11 @@ function App() {
         body: JSON.stringify({ url }),
       });
       const data = await response.json();
+      console.log(data)
       setShortenedUrl(data.shortenedUrl);
       setUrl('');
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error('Error:', err);
     }
   };
 
