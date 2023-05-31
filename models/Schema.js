@@ -5,9 +5,8 @@ const UrlSchema = new mongoose.Schema({
   //alias: { type: String, required: true },
   url: { type: String, required: true },
   alias: { type: String, required: true, index:true, unique: true, sparse:true },
-  visitHistory: [{ timestamp: { type: Number } }],
+  //shorturl:{ type: String, required: true, index:true, unique: true, sparse:true },
 },
-{ timestamps: true}
 );
 
 const Url = mongoose.model('url', UrlSchema);

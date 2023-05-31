@@ -51,30 +51,7 @@ app.get('/shorten', (req, res) => {
   res.render('index1');
 })
 
-app.post('/shorten', async (req, res, next) => {
-  try {
-    const { url } = req.body
-    if (!url) {
-      throw createHttpError.BadRequest('Provide a valid url')
-    }
-    const urlExists = await URL.findOne({ url })
-    if (urlExists) {
-      res.render('index', {
-        // short_url: `${req.hostname}/${urlExists.shortId}`,
-        short_url: `${req.hostname}/${urlExists.alias}`,
-      })
-      return
-    }
-    const shortUrl = new URL({ url: url, alias:shortid() })
-    const result = await shortUrl.save()
-    res.render('index', {
-      // short_url: `${req.hostname}/${urlExists.shortId}`,
-      short_url: `${req.hostname}/${result.alias}`,
-    })
-  } catch (error) {
-    next(error)
-  }
-})
+
 
 
 app.get('/i', (req, res) => {
@@ -128,13 +105,7 @@ app.get('/mappings', async (req, res) => {
 app.get('/:alias', async (req, res) => {
   const alias  = req.params.alias;
   try {
-    const mapping = await URL.findOneAndUpdate({ alias },{
-      $push: {
-        visitHistory: {
-          timestamp: Date.now(),
-        },
-      },
-    });
+    const mapping = await URL.findOne({ alias });
     if (mapping) {
       res.redirect(mapping.url);
     } else {
@@ -144,6 +115,32 @@ app.get('/:alias', async (req, res) => {
     res.status(500).send('Internal Server Error.');
   }
 });
+
+
+app.post('/shorten', async (req, res, next) => {
+  
+    const { url } = req.body
+    if (!url) {
+     throw createHttpError.BadRequest('Provide a valid url')
+    
+    }
+    const urlExists = await URL.findOne({ url })
+    if (urlExists) {
+      res.render('index1', {
+        // short_url: `${req.hostname}/${urlExists.shortId}`,
+        short_url: `https://url-shortener-1zjp.onrender.com/${urlExists.alias}`,
+      })
+      return
+    }
+    const shortUrl = new URL({ url: url, alias:shortid() })
+    const result = await shortUrl.save()
+    res.render('index1', {
+      // short_url: `${req.hostname}/${urlExists.shortId}`,
+      short_url: `https://url-shortener-1zjp.onrender.com/${result.alias}`,
+    })
+   
+})
+
 
 
 
