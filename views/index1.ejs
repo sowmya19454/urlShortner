@@ -5,18 +5,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css" />
-  <title>Shortened URL</title>
+  <title>Document</title>
 </head>
 <body>
-  <h1>Shortened URL!</h1>
-  <div class="short-url">
-    <% if (locals.short_url) { %>
-      <a href="<%= short_url %>" target="<%= '_blank' %>"><%= short_url %></a>
-    <% } %>
-  </div>
-</br>
-  <form action=" /" method="get">
-    <input type="submit" value="Shorten another URL" />
-  </form>
+    <h1>Shortened URL!</h1>
+    <div class="short-url">
+        <% if (locals.short_url) { %>
+          <% const endpoint = short_url.split('/').pop(); %>
+        <a href="<%= endpoint %>"><%= short_url %> </a>
+        <% } %>
+    </div>
+    </br>
+    <form action=" /" method="get">
+      <input type="submit" value="Shorten another url" />
+    </form>
 </body>
-</html>
