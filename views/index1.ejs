@@ -11,7 +11,7 @@
   <h1>Shortened URL!</h1>
   <div class="short-url">
     <% if (locals.short_url) { %>
-      <a href="<%= short_url %>" target="_blank"><%= short_url %></a>
+      <a href="<%= short_url %>" target="<%= '_blank' %>"><%= short_url %></a>
     <% } %>
   </div>
 </br>
