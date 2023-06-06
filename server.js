@@ -2,14 +2,16 @@ const express = require('express');
 const mongoose = require("mongoose");
 require('dotenv').config();
 const urlRoute = require("./routes/url");
-const URL = require("./models/Schema");
+const URL = require("./models/Url");
 const createHttpError = require('http-errors')
 const app = express();
 const bodyParser=require("body-parser");
+
 app.use(bodyParser.json())
 app.use("/url", urlRoute);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.set('view engine', 'ejs');
 const shortid = require("shortid");
 const path = require('path')
@@ -17,14 +19,14 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 mongoose.set("strictQuery", false);
 mongoose.connect(
-  `${process.env.MONGODB_URI}`,
+  `${process.env.MONGODB_URL}`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   } 
 );
 
-const Mappings = require("./models/Schema"); 
+const Mappings = require("./models/Url"); 
 
 const endpoints = [
   { path: '/', description: 'Home page', response: 'Rendered HTML' },
@@ -47,8 +49,8 @@ app.post('/', (req, res) => {
   res.render('index');
 })
 
-app.get('/shorten', (req, res) => {
-  res.render('index1');
+app.get('/shorturl', (req, res) => {
+  res.render('index');
 })
 
 app.get('/i', (req, res) => {
@@ -113,29 +115,29 @@ app.get('/:alias', async (req, res) => {
   }
 });
 
-app.post('/shorten', async (req, res, next) => {
+app.post('/shorturl', async (req, res, next) => {
     const { url } = req.body
     if (!url) {
      throw createHttpError.BadRequest('Provide a valid url')
     }
     const urlExists = await URL.findOne({ url })
     if (urlExists) {
-      res.render('index1', {
+      res.render('index', {
          short_url: `${req.headers.host}/${urlExists.alias}`,
-        //short_url: `https://url-shortener-1zjp.onrender.com/${urlExists.alias}`,
+      
       })
       return
     }
     const shortUrl = new URL({ url: url, alias:shortid() })
     const result = await shortUrl.save()
-    res.render('index1', {
+    res.render('index', {
       short_url: `${req.headers.host}/${result.alias}`,
-      //short_url: `https://url-shortener-1zjp.onrender.com/${result.alias}`,
+    
     })
 })
 
-app.listen(5002, () => {
-  console.log('Server is running at port 5002');
+app.listen(8000, () => {
+  console.log('Server is running at port 8000');
 });
 
 

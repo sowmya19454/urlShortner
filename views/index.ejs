@@ -4,19 +4,64 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css" />
-  <title>Document</title>
+  <title>Url shortner</title>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,700;1,400&display=swap');
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family:'Lucida Sans', sans-serif;
+      background-color: #ffffff;
+      color: rgb(1, 97, 8);
+    }
+    
+    .short-url {
+      margin: 20px;
+    }
+    
+    .short-url a {
+      color: rgb(1, 97, 8);
+    
+    }
+    
+    input[type='url'] {
+      display: table-column;
+      width: 60vw;
+    }
+    
+    input[type='submit'] {
+      display: table-column;
+      margin: 10px auto;
+      background-color: rgb(41, 75, 44);
+      color: white;
+      border-radius: 2px;
+      padding: 4px 8px;
+      font-family: 'Lucida Sans', sans-serif;
+    }
+    
+    p.error {
+      color: #f44336;
+    }</style>
 </head>
 <body>
-  <h1>Welcome to URL Shortener Service</h1>
+  <h1>shorten your url!</h1>
   <% if (locals.error) { %>
     <p class="error"><%= error %></p>
-    <% } %>
+  <% } %>
 
-    <form action="/shorten" method="post">
-      <input type="url" name="url" id="url" placeholder="url here..." />
-      <input type="submit" value="Submit" href="index1.ejs"/>  
-    </form>
- 
+  <form action="/shorturl" method="post">
+    <input type="url" name="url" id="url" placeholder="url here..." />
+    <input type="submit" value="Submit" />
+  </form>
+
+  <% if (locals.short_url) { %>
+    <h1>Here is your shortened URL:</h1>
+    <div class="short-url">
+      <% const endpoint = short_url.split('/').pop(); %>
+      <a href="<%= endpoint %>"><%= short_url %></a>
+    </div>
+
+  <% } %>
+
 </body>
 </html>
